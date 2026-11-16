@@ -186,10 +186,11 @@ Outputs: `index.md` (pass/fail table to report from), `results.jsonl`, `corpus.m
 
 The egress is chosen **per URL**, not globally. `--route auto` (default) probes the direct and proxied path for each URL, runs the one that answered, and falls back to the other once; `index.md` records which path each URL needed. `--route direct` and `--route proxy` force one path. A PAC is resolved per host, so a domain it sends direct is not probed through its proxy endpoint, and `--proxy none` really means DIRECT.
 
-Statuses: `ok`, `short`, `blocked-cloudflare`, `blocked-datadome`, `blocked-perimeterx`, `blocked-akamai`, `timeout`, `error`.
+Statuses: `ok`, `short`, `blocked-cloudflare`, `blocked-challenge`, `blocked-datadome`, `blocked-perimeterx`, `blocked-akamai`, `timeout`, `error`.
 
-Three rules:
+Four rules:
 
+- `blocked-cloudflare` / `blocked-challenge` mean the page loaded but the challenge never cleared: retry that subset **once** with `--headed --wait 90`, then treat what remains as a gap. `blocked-challenge` is the generic case (no vendor identified), not a handoff yet.
 - `blocked-datadome` / `blocked-perimeterx` / `blocked-akamai` mean **stop and hand off** (Rung 6); rerunning on the same IP changes nothing.
 - If every URL fails with `stage: "playwright"`, no interpreter with Playwright was found.
 - Report coverage, not just successes: "8/10 read" is a finding; silently delivering 8 files is not.

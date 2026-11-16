@@ -13,7 +13,7 @@ Cloudflare / WAF 靠四样东西区分真浏览器和 HTTP 客户端：TLS 指�
 1. **按 URL 选出口**：读系统代理（`*_proxy` / WinINET / `scutil`+PAC），再探测直连与代理两条路，走通哪条用哪条
 2. **固定顺序升级**：`web_fetch` → 带正确出口的 curl → 浏览器头 → CDP 真浏览器 → 侧门 → 交回给人
 3. **轮询过挑战**：UA 用真实浏览器版本重建，独立 profile，跑完即关
-4. **每个结果都有判定**：`ok` / `short` / `blocked-cloudflare` / `blocked-datadome` / `blocked-perimeterx` / `blocked-akamai` / `timeout` / `error`
+4. **每个结果都有判定**：`ok` / `short` / `blocked-cloudflare` / `blocked-challenge` / `blocked-datadome` / `blocked-perimeterx` / `blocked-akamai` / `timeout` / `error`
 5. **报覆盖率**，不只报成功；没读到的就一直是没读到
 
 ```

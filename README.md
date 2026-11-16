@@ -28,7 +28,7 @@ It is self-contained: one `SKILL.md` and three scripts. No framework, no service
 1. **Tests the right egress per URL.** Reads the OS proxy (`*_proxy`, WinINET, `scutil` + PAC), then probes direct and proxied paths and runs the one that answers.
 2. **Escalates in order**: `web_fetch` → curl with the right egress → browser-like headers → real Chromium over CDP → side doors → hand off to you.
 3. **Clears challenges** by polling, with a UA rebuilt from the real browser version and a fresh dedicated profile.
-4. **Grades every result** instead of guessing: `ok`, `short`, `blocked-cloudflare`, `blocked-datadome`, `blocked-perimeterx`, `blocked-akamai`, `timeout`, `error`.
+4. **Grades every result** instead of guessing: `ok`, `short`, `blocked-cloudflare`, `blocked-challenge`, `blocked-datadome`, `blocked-perimeterx`, `blocked-akamai`, `timeout`, `error`.
 5. **Reports coverage**, not just successes. Unread pages stay unread.
 
 ```

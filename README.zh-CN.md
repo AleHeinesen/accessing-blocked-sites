@@ -1,6 +1,6 @@
 # accessing-blocked-sites
 
-[English](README.md) | 简体中文
+> **English: [README.md](README.md)** · 以下是中文
 
 一个让 Agent「读得到网页」的技能：换对出口、起真浏览器、过挑战，读不到就如实说。
 

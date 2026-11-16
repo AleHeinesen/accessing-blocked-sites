@@ -1,6 +1,6 @@
 # accessing-blocked-sites
 
-English | [简体中文](README.zh-CN.md)
+> **中文版：[README.zh-CN.md](README.zh-CN.md)** · English below
 
 ## 中文简介
 

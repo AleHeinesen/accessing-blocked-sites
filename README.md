@@ -1,5 +1,22 @@
 # accessing-blocked-sites
 
+English | [简体中文](README.zh-CN.md)
+
+## 中文简介
+
+让 Agent 读得到那些读不到的网页：按站点在「直连 / 代理」之间选出口，用本机真实 Chromium 过 Cloudflare，读不到时给出原因和覆盖率，而不是猜。
+
+- **安装**：`git clone` 后 `python install.py`，自动建 venv 装 Playwright；**不需要** `playwright install`
+- **单页**：`scripts/fetch_page.py <url> out/page --headed`
+- **批量**：`scripts/batch_fetch.py urls.txt -j 3 --wait 60 --out out/run1`
+- **产物**：`index.md`（每页实际走的出口）、`results.jsonl`、`corpus.md`、`pages/`
+- **边界**：不解验证码、不代登录、不绕付费墙；出口 IP 被记账时报成缺口，不反复重试
+
+完整中文文档见 [README.zh-CN.md](README.zh-CN.md)。
+
+---
+
+
 An agent skill that reads pages other clients cannot.
 
 Cloudflare, WAFs and bot managers separate a real browser from an HTTP client by TLS fingerprint, UA, JS challenge execution and IP reputation. They also separate one *egress* from another: some domains answer only through a proxy, others reject the proxy's exit IP and answer only on a direct connection. This skill handles both axes, in a fixed order, and reports honestly when it fails.

@@ -72,6 +72,20 @@ BLOCKER_MARKERS = {
     "cloudflare": ("cf-chl", "challenge-platform", "cf_chl_opt"),
 }
 
+# A bot gate is short: a headline and maybe a button. Prose above this length is
+# content, so the marker scan below applies only to pages shorter than this.
+INTERSTITIAL_MAX_TEXT = 1500
+
+# Vendor references appear in markup attributes, not in running text.
+_ATTR_VALUE_RE = re.compile(r'(?:src|href|action|data-[a-z0-9-]+)\s*=\s*["\']([^"\']{1,400})',
+                            re.IGNORECASE)
+
+
+def text_weight(text: str) -> int:
+    """Length in Latin-equivalent characters: one CJK character counts as two."""
+    cjk = sum(1 for ch in text if ord(ch) >= 0x2E80)
+    return len(text) + cjk
+
 
 
 def platform_ua() -> str:
@@ -441,13 +455,30 @@ def ua_for(kind: str, version: str) -> str:
 
 
 def looks_challenged(title: str, text: str) -> bool:
-    blob = (title + " " + text[:2000]).lower()
-    return any(marker in blob for marker in CHALLENGE_MARKERS)
+    """True when the captured page is a bot gate rather than content.
+
+    The title is matched always; the body only below INTERSTITIAL_MAX_TEXT.
+    """
+    lowered_title = title.lower()
+    if any(marker in lowered_title for marker in CHALLENGE_MARKERS):
+        return True
+    body = text.strip()
+    if len(body) >= INTERSTITIAL_MAX_TEXT:
+        return False
+    return any(marker in body[:2000].lower() for marker in CHALLENGE_MARKERS)
 
 
 def detect_blocker(title: str, text: str, html: str) -> str | None:
-    """Name the bot-management vendor holding the page, if any."""
-    blob = f"{title} {text[:2000]} {html[:400000]}".lower()
+    """Name the bot-management vendor the page's markup references, if any.
+
+    Matched against the title and markup attributes always; the body only below
+    INTERSTITIAL_MAX_TEXT.
+    """
+    refs = " ".join(_ATTR_VALUE_RE.findall(html[:400000])).lower()
+    blob = f"{title.lower()} {refs}"
+    body = text.strip()
+    if len(body) < INTERSTITIAL_MAX_TEXT:
+        blob += " " + body[:2000].lower()
     for name, markers in BLOCKER_MARKERS.items():
         if any(marker in blob for marker in markers):
             return name
@@ -565,7 +596,8 @@ def main(argv=None) -> int:
 
         # A challenge can clear during the networkidle wait, after the polling
         # deadline. Judge the page that was actually captured, not the loop.
-        cleared = not looks_challenged(title, text) and len(text.strip()) >= args.min_text
+        cleared = (not looks_challenged(title, text)
+                   and text_weight(text.strip()) >= args.min_text)
 
         written = []
         prefix = Path(args.out_prefix)
@@ -586,6 +618,7 @@ def main(argv=None) -> int:
             "challenge_cleared": cleared,
             "blocker": detect_blocker(title, text, html),
             "text_chars": len(text),
+            "text_weight": text_weight(text),
             "html_chars": len(html),
             "cookies": len(ctx.cookies()),
             "saved": written,

@@ -97,6 +97,8 @@ It probes both paths and prints a verdict: both work / proxy cannot carry traffi
 - **PAC is resolved per host.** A split-tunnel PAC proxies specific domains and sends the rest direct; using its endpoint for everything is a real bug, not a preference.
 - **Dedicated profile, always.** Browsers cannot decrypt App-Bound (`v20`) cookies outside their own profile and will silently delete what they cannot unwrap. Pointing this at your real profile destroys cookies.
 - **Headless and headed are one flag apart, but the result differs.** If a site fails both, the blocker is the exit IP, and the answer is a different egress or a human — not another client.
+- **Text length is language-neutral.** `--min-text` is compared in Latin-equivalent characters, one CJK character counting as two, so a solid Chinese page is not rejected as `short` at the default 400. The JSON verdict reports `text_weight` next to `text_chars`.
+- **Vendor detection reads the markup.** `blocker` is matched against the title and `src` / `href` / `action` / `data-*` attributes; the body is scanned only when the page is short enough to be a gate (under 1500 characters). A page that merely discusses Cloudflare or DataDome is not reported as blocked by it.
 
 ## What it is not
 

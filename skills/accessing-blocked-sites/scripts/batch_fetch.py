@@ -226,13 +226,17 @@ def run_attempt(index: int, url: str, cfg: argparse.Namespace, python_prefix: li
     timed_out = False
     stdout = stderr = ""
     try:
+        # The child writes UTF-8 regardless of the locale code page.
         proc = subprocess.run(python_prefix + args, capture_output=True,
-                              text=True, timeout=cfg.timeout)
-        stdout, stderr = proc.stdout, proc.stderr
+                              text=True, encoding="utf-8", errors="replace",
+                              timeout=cfg.timeout)
+        stdout, stderr = proc.stdout or "", proc.stderr or ""
     except subprocess.TimeoutExpired as exc:
         timed_out = True
-        stdout = exc.stdout.decode() if isinstance(exc.stdout, bytes) else (exc.stdout or "")
-        stderr = exc.stderr.decode() if isinstance(exc.stderr, bytes) else (exc.stderr or "")
+        stdout = (exc.stdout.decode("utf-8", "replace")
+                  if isinstance(exc.stdout, bytes) else (exc.stdout or ""))
+        stderr = (exc.stderr.decode("utf-8", "replace")
+                  if isinstance(exc.stderr, bytes) else (exc.stderr or ""))
 
     report = parse_report(stdout)
     status = classify(report, timed_out)
@@ -339,7 +343,7 @@ def main(argv: list[str] | None = None) -> int:
 
     urls: list[str] = list(cfg.url)
     if cfg.urls_file:
-        text = Path(cfg.urls_file).read_text(encoding="utf-8", errors="replace")
+        text = Path(cfg.urls_file).read_text(encoding="utf-8-sig", errors="replace")
         for line in text.splitlines():
             line = line.strip()
             if line and not line.startswith("#"):

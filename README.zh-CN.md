@@ -71,6 +71,8 @@ python skills/accessing-blocked-sites/scripts/check_egress.py
 - **PAC 按域名解析**：分流域名的 PAC 只对这些域名用代理，把它的端点套到所有站点是 bug。
 - **只用独立 profile**：浏览器无法在自身 profile 之外解密 App-Bound（v20）cookie，会静默删除解不开的条目。指向真实 profile 等于毁掉 cookie。
 - **两条路都失败，问题在出口 IP**：换出口或找人，不是换客户端。
+- **文本长度按语言折算**：`--min-text` 以「拉丁字符等量」比较，一个中文字符按两个算，所以中文好页不会在默认 400 下被判成 `short`。JSON 判定里 `text_weight` 与 `text_chars` 并列给出。
+- **封禁方只认结构证据**：`blocker` 从标题与 `src` / `href` / `action` / `data-*` 属性里匹配，正文只在「短到可能是拦截页」（不足 1500 字符）时才扫；讨论 Cloudflare 或 DataDome 的页面不会被判成被它拦截。
 
 ## 它不做什么
 

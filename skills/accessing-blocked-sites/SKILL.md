@@ -143,8 +143,9 @@ Skill locations: DSH `~/.dsh/skills/accessing-blocked-sites/`, Claude Code `~/.c
 | **`--insecure`** | Some sites have broken certificate chains; use only when needed. |
 | **`--no-sandbox`** | Containers/root only where Chromium refuses to start; it reduces isolation. |
 | **`--wait 90`** | Cloudflare sometimes needs longer than 60 s; raise it instead of retrying blindly. |
+| **`--min-text`** | Content threshold in Latin-equivalent characters: a CJK character counts as two. Default 400. Raise it to reject index pages, lower it for terse pages. |
 
-Success is `"challenge_cleared": true` with `text_chars` in the thousands. Also read `blocker`: `datadome`, `perimeterx` or `akamai` means the exit IP is the problem, and another attempt on the same IP adds nothing — go to Rung 6. The script writes `<prefix>.txt` (rendered text) and `<prefix>.html`.
+Success is `"challenge_cleared": true` with `text_chars` in the thousands and `text_weight` above `--min-text`. Also read `blocker`: `datadome`, `perimeterx` or `akamai` means the exit IP is the problem, and another attempt on the same IP adds nothing — go to Rung 6. The script writes `<prefix>.txt` (rendered text) and `<prefix>.html`.
 
 Exit codes: `0` cleared and substantial, `1` loaded but challenged or too short, `2` setup problem (no browser, no Playwright). Judge by the JSON: a Playwright warning on stderr can also produce a non-zero status.
 
